@@ -75,12 +75,17 @@ class Hr:
         
         iframe = Frame(List,width=800,height=550,bg="#7ebfe0")
         iframe.pack(fill=tk.BOTH)
-        idpicPath = "Pictures/picID/"
-        self.image = Image.open(idpicPath+self.mainpic)
-        final = self.image.resize((200,200))
-        self.mainpic = ImageTk.PhotoImage(final)
-        pic = Label(iframe,image=self.mainpic)
-        pic.grid(row=0,column=0,rowspan=3,sticky="n",pady=5,padx=20)
+        try:
+            idpicPath = "Pictures/picID/"
+            self.image = Image.open(idpicPath+self.mainpic)
+            final = self.image.resize((200,200))
+            self.mainpic = ImageTk.PhotoImage(final)
+            pic = Label(iframe,image=self.mainpic)
+            pic.grid(row=0,column=0,rowspan=3,sticky="n",pady=5,padx=20)
+        except :
+            messagebox.showerror(f"Error","There is no Image in the Database")
+            
+        
         
         name = Label(iframe,text=self.name,font=("Arial",15),width=19,height=2,border=1,relief="solid",bg="#61a2c2")
         name.grid(row=3,column=0,padx=10)
@@ -109,12 +114,13 @@ class Hr:
         b6 = Button(iframe,text="SERVICE RECORD",width=30,height=3,bg="#961a1a",fg="#FFFFFF",command=self.ServiceRecord)
         b6.grid(row=5,column=1,padx=10,pady=10,ipadx=100)
     def academicbackground(self):
+        global academic
         academic = tk.Tk()
+        self.academicSearch()
         academic.geometry("860x600")    
         academic.config(bg="#fedbd0")
         labelTitle = Label(academic, text="ACADEMIC BACKGROUND", bg="#fedbd0", fg="#442c2e",font=("Arial",20))
         labelTitle.grid(row=0,column=0,padx=10,pady=10)
-        self.academicSearch()
         self.labelElementary = Label(academic, text="Elementary School: " + self.elementary, bg="#fedbd0", fg="#442c2e", borderwidth=2, relief="solid", height=2, width=70, font=("Arial", 15))
         self.labelJuniorHigh = Label(academic, text="Junior High School: " + self.juniorhigh, bg="#fedbd0", fg="#442c2e", borderwidth=2, relief="solid", height=2, width=70, font=("Arial", 15))
         self.labelSeniorHigh = Label(academic, text="Senior High School: " + self.seniorhigh, bg="#fedbd0", fg="#442c2e", borderwidth=2, relief="solid", height=2, width=70, font=("Arial", 15))
@@ -133,36 +139,46 @@ class Hr:
     def academicSearch(self):
         self.mycursor.execute("SELECT * FROM academicbackground WHERE EmployeeID = %s",(self.id,))
         result = self.mycursor.fetchall()
-        for row in result:
-            self.elementary = row[2]
-            self.juniorhigh = row[3]
-            self.seniorhigh = row[4]
-            self.college = row[5]
-            self.course = row[6]
-            self.graduateStudies = row[7]
-            self.post_graduate = row[8]   
+        if result:
+            for row in result:
+              self.elementary = row[2]
+              self.juniorhigh = row[3]
+              self.seniorhigh = row[4]
+              self.college = row[5]
+              self.course = row[6]
+              self.graduateStudies = row[7]
+              self.post_graduate = row[8]   
+        else:
+            messagebox.showerror("Error","The records are empty.")
+            academic.destroy()
+            
             
     def personalInfoSearch(self):
         self.mycursor.execute("SELECT * FROM personalinfo WHERE EmployeeID = %s",(self.id,))
         result = self.mycursor.fetchall()
-        for row in result:
-            self.contactnumber = str(row[2])
-            self.birthday = str(row[3])
-            self.surname = row[4]
-            self.firstname = row[5]
-            self.middlename = row[6]
-            self.suffix = row[7]
-            self.address = row[8]
-            self.civilstatus = row[9]
-            self.sex = row[10]
-            self.birthplace = row[11]
-            self.religion = row[12]
-            self.email = row[13]
+        if result:
+            for row in result:
+               self.contactnumber = str(row[2])
+               self.birthday = str(row[3])
+               self.surname = row[4]
+               self.firstname = row[5]
+               self.middlename = row[6]
+               self.suffix = row[7]
+               self.address = row[8]
+               self.civilstatus = row[9]
+               self.sex = row[10]
+               self.birthplace = row[11]
+               self.religion = row[12]
+               self.email = row[13]
+        else:
+            messagebox.showerror("Error","The records are empty.")
+            personal.destroy()
     def personalInfo(self):
+        global personal
         personal = tk.Toplevel()
+        self.personalInfoSearch()
         personal.geometry("580x830") 
         personal.config(bg="#fedbd0")
-        self.personalInfoSearch()
         labelTitle = Label(personal, text="PERSONAL INFORMATION", bg="#fedbd0", fg="#442c2e",font=("Arial",20))
         self.labelFname = Label(personal, text="First Name: " + self.firstname, bg="#fedbd0", fg="#442c2e", borderwidth=2, relief="solid", height=2, width=50,font=("Arial",15))
         self.labelLname = Label(personal, text="Last Name: " + self.surname, bg="#fedbd0", fg="#442c2e", borderwidth=2, relief="solid", height=2, width=50,font=("Arial",15))
@@ -191,10 +207,11 @@ class Hr:
         self.labelReligion.grid(row=11, column=0, pady=5,padx=10)
         self.labelEmail.grid(row=12, column=0, pady=5,padx=10)
     def eligibility(self):
+        global eligibility
         eligibility = tk.Toplevel()
+        self.eligibilityQuery()
         eligibility.geometry("650x850")
         eligibility.config(bg="#fedbd0")
-        self.eligibilityQuery()
         title = Label(eligibility, text="Eligibility", bg="#fedbd0", fg="#442c2e", font=("Arial", 20))
         title.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
 
@@ -213,36 +230,37 @@ class Hr:
         lab2.grid(row=1,column=1,padx=10,pady=10)
         lab3.grid(row=3,column=0,padx=10,pady=10)
         lab4.grid(row=3,column=1,padx=10,pady=10)
-    
-        # Load and resize images
-        prc_image = Image.open(prcPath + self.prcIdpic)  # Assuming "prc_image.jpg" is the file name
-        prc_final = prc_image.resize((300, 300))
-        self.prcIdpic = ImageTk.PhotoImage(prc_final)
+        try:
+           prc_image = Image.open(prcPath + self.prcIdpic)  # Assuming "prc_image.jpg" is the file name
+           prc_final = prc_image.resize((300, 300))
+           self.prcIdpic = ImageTk.PhotoImage(prc_final)
         
-        civil_image = Image.open(civilPath +self.civilCertificatepic)  # Assuming "civil_image.jpg" is the file name
-        civil_final = civil_image.resize((300, 300))
-        self.civilCertificatepic = ImageTk.PhotoImage(civil_final)
+           civil_image = Image.open(civilPath +self.civilCertificatepic)  # Assuming "civil_image.jpg" is the file name
+           civil_final = civil_image.resize((300, 300))
+           self.civilCertificatepic = ImageTk.PhotoImage(civil_final)
         
-        cpd_image = Image.open(cpdPath +self.cpdSeminarpic)  # Assuming "cpd_image.jpg" is the file name
-        cpd_final = cpd_image.resize((300, 300))
-        self.cpdSeminarpic = ImageTk.PhotoImage(cpd_final)
+           cpd_image = Image.open(cpdPath +self.cpdSeminarpic)  # Assuming "cpd_image.jpg" is the file name
+           cpd_final = cpd_image.resize((300, 300))
+           self.cpdSeminarpic = ImageTk.PhotoImage(cpd_final)
         
-        tesda_image = Image.open(tesdaPath + self.tesdaPic)  # Assuming "tesda_image.jpg" is the file name
-        tesda_final = tesda_image.resize((300, 300))
-        self.tesdaPic = ImageTk.PhotoImage(tesda_final)
+           tesda_image = Image.open(tesdaPath + self.tesdaPic)  # Assuming "tesda_image.jpg" is the file name
+           tesda_final = tesda_image.resize((300, 300))
+           self.tesdaPic = ImageTk.PhotoImage(tesda_final)
         
-        # Create labels with images
-        prc_label = Label(eligibility, image=self.prcIdpic)
-        prc_label.grid(row=2, column=0, padx=10, pady=10)
+       
+           prc_label = Label(eligibility, image=self.prcIdpic)
+           prc_label.grid(row=2, column=0, padx=10, pady=10)
 
-        civil_label = Label(eligibility, image=self.civilCertificatepic)
-        civil_label.grid(row=2, column=1, padx=10, pady=10)
+           civil_label = Label(eligibility, image=self.civilCertificatepic)
+           civil_label.grid(row=2, column=1, padx=10, pady=10)
 
-        cpd_label = Label(eligibility, image=self.cpdSeminarpic)
-        cpd_label.grid(row=4, column=0, padx=10, pady=10)
+           cpd_label = Label(eligibility, image=self.cpdSeminarpic)
+           cpd_label.grid(row=4, column=0, padx=10, pady=10)
 
-        tesda_label = Label(eligibility, image=self.tesdaPic)
-        tesda_label.grid(row=4, column=1, padx=10, pady=10)
+           tesda_label = Label(eligibility, image=self.tesdaPic)
+           tesda_label.grid(row=4, column=1, padx=10, pady=10)
+        except:
+            messagebox.showerror("Error","There is no image in the database")
     def eligibilityQuery(self):
         query = "SELECT * FROM Eligibility WHERE EmployeeId = %s"
         self.mycursor.execute(query,(self.id,))
@@ -253,15 +271,18 @@ class Hr:
                 self.civilCertificatepic = x[3]
                 self.cpdSeminarpic = x[4]
                 self.tesdaPic = x[5]
+        else:
+            messagebox.showerror("Error","The Records are empty.")
+            eligibility.destroy()
                 
     def training(self):
+        global training
         training = tk.Toplevel()
+        self.trainingQuery()
         training.geometry("1270x600")
         training.config(bg="#fedbd0")
-        self.trainingQuery()
         title = Label(training, text="Training/Seminars Certificates", bg="#fedbd0", fg="#442c2e", font=("Arial", 20))
         title.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
-        
         lab1 = Label(training, text="Title", bg="#fedbd0", fg="#442c2e",font=("Arial",15))
         lab2 = Label(training, text="Date", bg="#fedbd0", fg="#442c2e",font=("Arial",15))
         lab3 = Label(training, text="Certificate", bg="#fedbd0", fg="#442c2e",font=("Arial",15))
@@ -281,7 +302,6 @@ class Hr:
         Date3 = Label(training, text=self.trainDate3, bg="#fedbd0", fg="#442c2e",font=("Arial",15,"underline"))
         
         trainingCertPath = "Pictures/Training/"
-        
         cert1 = Image.open(trainingCertPath+self.trainPic1)
         certF1 = cert1.resize((400,200))
         self.trainPic1 = ImageTk.PhotoImage(certF1)
@@ -339,12 +359,16 @@ class Hr:
                 self.trainDate3 = x[8]
                 self.trainTitle3 = x[9]
                 self.trainPic3 = x[10]
-                
+        else:
+            messagebox.showerror("Error","The records are empty.")
+            training.destroy()     
+            
     def ServiceRecord(self):
+        global service
         service= tk.Toplevel()
-        service.config(bg="#fedbd0")
-        service.geometry("550x300")
         self.serviceQuery()
+        service.config(bg="#fedbd0")
+        service.geometry("600x300")
         lab1 = Label(service,text="Service Records", bg="#fedbd0", fg="#442c2e", font=("Arial", 20))
         
         lab1.grid(row=0,column=1,columnspan=2,padx=10,pady=10)
@@ -382,13 +406,17 @@ class Hr:
                 self.serviceInfo2 = x[5]
                 self.serviceDate3 = x[6]
                 self.serviceInfo3 = x[7]
+        else:
+            messagebox.showerror("Error","The records are empty.")
+            service.destroy()
         
     def employeeHistory(self):
+        global history
         history = tk.Toplevel()
+        self.historyQuery()
         history.geometry("600x300")
         history.config(bg="#fedbd0")
         title = Label(history, text="Employment History", bg="#fedbd0", fg="#442c2e", font=("Arial", 20))
-        self.historyQuery()
         date = Label(history,text="Date",bg="#fedbd0", fg="#442c2e",font=("Arial",15))
         description = Label(history,text="Description",bg="#fedbd0", fg="#442c2e",font=("Arial",15))
             
@@ -425,13 +453,15 @@ class Hr:
                 self.empHistoryDate2 = x[5]
                 self.empHistoryDesc3 = x[6]
                 self.empHistoryDate3 = x[7]          
+        else:
+            messagebox.showerror("Error","The records are empty.")
+            history.destroy()
+            
     def menuform(self): #form for employee search
         self.root = tk.Tk()
         self.root.geometry("500x350")
         self.root.config(bg="#fedbd0")
         self.root.title("HRMD Server")
-        
-        
         pic = "Pictures/logo.png"
         logo = Image.open(pic)
         final = logo.resize((120,100))
